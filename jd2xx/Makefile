@@ -3,19 +3,28 @@
 #
 
 
-platform=$(shell uname -ms)
+PLATFORM=$(shell uname -ms)
 
-ifeq ($(platform),Darwin x86_64)
+ifeq ($(PLATFORM),Darwin x86_64)
 	JDK = /Library/Java/JavaVirtualMachines/jdk1.7.0_21.jdk/Contents/Home/
+	JDK_HEADERS = $(JDK)/include/darwin
 	FTDI = ../ftdi
 	OS = osx
 	ARCH = static64
-
 	CC = /usr/bin/gcc
 	OBJDUMP = /usr/bin/objdump
+	LIB_EXTRAS = -wl -framework CoreFoundation -framework IOKit -lobjc
 	SHARED_LIB = libjd2xx.jnilib
-else
-
+else ifeq ($(PLATFORM),Linux i686)
+	JDK = /usr/lib/jvm/java-7-oracle/
+	JDK_HEADERS = $(JDK)/include/linux
+	FTDI = ../ftdi
+	OS = linux_x86
+	ARCH = x86
+	CC = /usr/bin/gcc
+	OBJDUMP = /usr/bin/objdump
+	LIB_EXTRAS = -lrt
+	SHARED_LIB = libjd2xx.so
 endif
 
 JSRC = $(wildcard jd2xx/JD2XX*.java)
@@ -23,9 +32,9 @@ JOBJ = $(JSRC:%.java=%.class)
 
 TARGETS = jd2xx/JD2XX.class src/jd2xx_JD2XX.h JD2XX.jar $(SHARED_LIB)
 
-INC = -I$(JDK)/include -I$(JDK)/include/darwin -I$(FTDI) -I$(FTDI)/$(OS) -I./src
+INC = -I$(JDK)/include -I$(JDK_HEADERS) -I$(FTDI) -I$(FTDI)/$(OS) -I./src
 DEF = -D_JNI_IMPLEMENTATION_
-LIB = -L$(FTDI)/$(OS)/build/$(ARCH)/ -lftd2xx -framework CoreFoundation -framework IOKit -lobjc
+LIB = -L$(FTDI)/$(OS)/build/$(ARCH)/ -lftd2xx $(LIB_EXTRAS)
 
 JAVAH = $(JDK)/bin/javah -jni
 JAVAC = $(JDK)/bin/javac
@@ -34,7 +43,7 @@ JAVADOC = $(JDK)/bin/javadoc
 
 JFLAGS = -O
 CFLAGS = -O2 -g $(INC) $(DEF)
-LDFLAGS = -shared -Wl
+LDFLAGS = -shared
 
 vpath %.c src
 vpath %.h src
