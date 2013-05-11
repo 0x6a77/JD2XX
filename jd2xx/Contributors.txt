@@ -1,0 +1,15 @@
+Jorge L. Mireles <jorgeluismireles at yahoo dot com>
+	- Suggested list by location bug correction
+
+Jorgen Lind <jorgen.lind at gmail dot com>
+	- Suggested event listener implementation
+
+Radzio Fantom <radzio_fantom at tlen dot pl>
+	- Detected that the setBitMode method second argument was not up to date
+	- Noticed that setUSBParameters was using a wrong FT call
+
+Tomasz Król <tomasz.krol at tekom dotpl>
+	- Noticed that setFlowControl was using a wrong FT call
+
+Jeff Williams <jeffw at lmi dot net>
+	- Contributed the pthread/OSX port
