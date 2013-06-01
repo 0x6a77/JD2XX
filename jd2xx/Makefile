@@ -46,7 +46,7 @@ endif
 JSRC = $(wildcard jd2xx/JD2XX*.java)
 JOBJ = $(JSRC:%.java=%.class)
 
-TARGETS = jd2xx/JD2XX.class src/jd2xx_JD2XX.h JD2XX.jar $(SHARED_LIB)
+TARGETS = jd2xx/JD2XX.class src/jd2xx_JD2XX.h jd2xx.jar $(SHARED_LIB)
 
 INC = -I$(JDK)/include -I$(JDK_HEADERS) -I$(FTDI) -I$(FTDI)/$(OS) -I./src
 DEF = -D_JNI_IMPLEMENTATION_
