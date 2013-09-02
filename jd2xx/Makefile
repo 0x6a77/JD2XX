@@ -25,7 +25,7 @@ else ifeq ($(PLATFORM),Linux i686)
 	JDK_HEADERS = $(JDK)/include/linux
 	FTDI = ../ftdi
 	OS = linux_x86
-	ARCH = x86
+	ARCH = i386
 	CC = /usr/bin/gcc
 	OBJDUMP = /usr/bin/objdump
 	LIB_EXTRAS = -lrt
