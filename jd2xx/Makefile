@@ -43,8 +43,11 @@ else ifeq ($(PLATFORM),Linux x86_64)
 	SHARED_LIB = libjd2xx.so
 endif
 
-JSRC = $(wildcard jd2xx/JD2XX*.java)
+JSRC = $(wildcard cz/adamh/utils/*.java) \
+       $(wildcard jd2xx/JD2XX*.java)
 JOBJ = $(JSRC:%.java=%.class)
+
+JNIS = jni/linux/x86_64/libjd2xx.so
 
 TARGETS = jd2xx/JD2XX.class src/jd2xx_JD2XX.h jd2xx.jar $(SHARED_LIB)
 
@@ -85,8 +88,8 @@ all: $(TARGETS)
 $(SHARED_LIB): JD2XX.o
 	$(CC) $(LDFLAGS) -o $(notdir $@) $^ $(LIB) 
 
-%.jar: $(JOBJ)
-	$(JAR) cf $@ jd2xx/*
+%.jar: $(JOBJ) $(JNIS)
+	$(JAR) cf $@ cz/adamh/utils/*.class jd2xx/JD2XX*.class $(JNIS)
 
 doc:
 	$(JAVADOC) -d $@ jd2xx
