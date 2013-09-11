@@ -10,15 +10,23 @@ JDK ?= $(JAVA_HOME)
 
 PLATFORM=$(shell uname -ms)
 
+# Configuration:
+# may be overwritten by environment/commandline variables
+
+CC = gcc
+OBJDUMP = objdump
+
+JFLAGS ?= -O
+CFLAGS ?= -O2 -g
+LDFLAGS ?=
+
 ifeq ($(PLATFORM),Darwin x86_64)
 	JDK ?= /Library/Java/JavaVirtualMachines/jdk1.7.0_21.jdk/Contents/Home/
 	JDK_HEADERS = $(JDK)/include/darwin
 	FTDI = ../ftdi
 	OS = osx
 	ARCH = static64
-	CC = /usr/bin/gcc
-	OBJDUMP = /usr/bin/objdump
-	LIB_EXTRAS = -wl -framework CoreFoundation -framework IOKit -lobjc
+	LDFLAGS += -wl -framework CoreFoundation -framework IOKit -lobjc
 	SHARED_LIB = libjd2xx.jnilib
 else ifeq ($(PLATFORM),Linux i686)
 	JDK ?= /usr/lib/jvm/java-7-oracle/
@@ -26,9 +34,8 @@ else ifeq ($(PLATFORM),Linux i686)
 	FTDI = ../ftdi
 	OS = linux_x86
 	ARCH = i386
-	CC = /usr/bin/gcc
-	OBJDUMP = /usr/bin/objdump
-	LIB_EXTRAS = -lrt
+	OBJDUMP = objdump
+	LDFLAGS += -lrt
 	SHARED_LIB = libjd2xx.so
 else ifeq ($(PLATFORM),Linux x86_64)
 	JDK ?= /usr/lib/jvm/java-7-oracle/
@@ -36,72 +43,80 @@ else ifeq ($(PLATFORM),Linux x86_64)
 	FTDI = ../ftdi
 	OS = linux_x86
 	ARCH = x86_64
-	CC = /usr/bin/gcc
-	OBJDUMP = /usr/bin/objdump
-	CFLAGS = -fPIC
-	LIB_EXTRAS = -lrt
+	CFLAGS += -fPIC
+	LDFLAGS += -lrt
 	SHARED_LIB = libjd2xx.so
+else ifneq ($(findstring MINGW,$(PLATFORM)),)
+	ifeq ($(word 2,$(PLATFORM)),i686)
+		JDK ?= c:/JDK
+		JDK_HEADERS = $(JDK)/include/win32
+		FTDI = ../ftdi
+		OS = win32
+		ARCH = i386
+		SHARED_LIB = JD2XX.dll
+	else ifeq ($(word 2,$(PLATFORM)),x86_64)
+		JDK ?= c:/JDK
+		JDK_HEADERS = $(JDK)/include/win32
+		FTDI = ../ftdi
+		OS = win32
+		ARCH = amd64
+		SHARED_LIB = JD2XX.dll
+	endif
 endif
 
-JSRC = $(wildcard cz/adamh/utils/*.java) \
-       $(wildcard jd2xx/JD2XX*.java)
-JOBJ = $(JSRC:%.java=%.class)
-
-JNIS = jni/linux/x86_64/libjd2xx.so
-
-TARGETS = jd2xx/JD2XX.class src/jd2xx_JD2XX.h jd2xx.jar $(SHARED_LIB)
-
-INC = -I$(JDK)/include -I$(JDK_HEADERS) -I$(FTDI) -I$(FTDI)/$(OS) -I./src
-DEF = -D_JNI_IMPLEMENTATION_
-LIB = -L$(FTDI)/$(OS)/build/$(ARCH)/ -lftd2xx $(LIB_EXTRAS)
+CPPFLAGS += -I$(JDK)/include -I$(JDK_HEADERS) -I$(FTDI) -I$(FTDI)/$(OS) -I./src \
+	    -D_JNI_IMPLEMENTATION_
+LDFLAGS += -shared \
+	   -L$(FTDI)/$(OS)/build/$(ARCH)/ -L$(FTDI)/$(OS)/Static/$(ARCH)/ -lftd2xx
 
 JAVAH = $(JDK)/bin/javah -jni
 JAVAC = $(JDK)/bin/javac
 JAR = $(JDK)/bin/jar
 JAVADOC = $(JDK)/bin/javadoc
 
-JFLAGS = -O
-CFLAGS += -O2 -g $(INC) $(DEF)
-LDFLAGS = -shared
+JSRC = $(wildcard cz/adamh/utils/*.java) \
+       $(wildcard jd2xx/*.java)
+JOBJ = $(JSRC:%.java=%.class)
 
-vpath %.c src
-vpath %.h src
-
-.PRECIOUS: %.class
+#.PRECIOUS: %.class
 .PHONY: all clean
-.INTERMEDIATE: JD2XX.o
 
-all: $(TARGETS)
+all: jd2xx.jar
+jni: $(SHARED_LIB)
 
-%.class: $(JSRC)
-	$(JAVAC) $(JFLAGS) $^
-
-%.h:
-	$(JAVAH) -classpath . -d src $(notdir $(subst _,.,$*))
+%.h: jd2xx/JD2XX.class
+	$(JAVAH) -classpath . -d src jd2xx.JD2XX
 
 %.lst: %.o
 	$(OBJDUMP) -dxStr $< > $@
 
-%.o: %c %h
-	$(CC) -c $(CFLAGS) $< -o $@
+src/JD2XX.o : src/jd2xx_JD2XX.h src/jd2xx_JD2XX_DeviceInfo.h \
+	      src/jd2xx_JD2XX_ProgramData.h
 
-$(SHARED_LIB): JD2XX.o
-	$(CC) $(LDFLAGS) -o $(notdir $@) $^ $(LIB) 
+$(SHARED_LIB): src/JD2XX.o
+	$(CC) $(LDFLAGS) -o $@ $^
 
-%.jar: $(JOBJ) $(JNIS)
-	$(JAR) cf $@ cz/adamh/utils/*.class jd2xx/JD2XX*.class $(JNIS)
+%.class: %.java
+	$(JAVAC) $(JFLAGS) $<
+
+jd2xx.jar: $(JOBJ)
+	$(JAR) cf $@ cz/adamh/utils/*.class jd2xx/*.class \
+		     jni/
 
 doc:
 	$(JAVADOC) -d $@ jd2xx
 
 clean:
-	$(RM) $(TARGETS) jd2xx/JD2XX*.class src/jd2xx_JD2XX*.h JD2XX.o
+	$(RM) jd2xx.jar $(SHARED_LIB)
+	$(RM) jd2xx/*.class cz/adamh/utils/*.class
+	$(RM) src/jd2xx_JD2XX*.h src/*.o
 
 distclean: clean
 	$(RM) jd2xx/*.bak src/*.bak *.bak
 	$(RM) -r doc
 
 printvars:
+	@echo $(JOBJ)
 	@echo Using JDK: $(JDK)
 	@echo JAVA_HOME: $(JAVA_HOME)
 	@echo JDK headers: $(JDK_HEADERS)

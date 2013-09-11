@@ -1,2 +1,6 @@
-/JD2XX.jar
-/libjd2xx.so
+/*.jar
+/*.so
+/*.dll
+*.o
+
+src/jd2xx_JD2XX_*.h

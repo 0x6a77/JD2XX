@@ -4,7 +4,7 @@
 	This POM may not be used to build the library but to aid
 	its installation into the local Maven repository.
 	Install with:
-	make
+	JAVA_HOME=... make
 	mvn install:install-file -Dfile=jd2xx.jar -DpomFile=pom.xml
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
