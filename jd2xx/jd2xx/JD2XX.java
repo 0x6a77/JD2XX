@@ -757,7 +757,7 @@ public class JD2XX implements Runnable {
 		try {
 			NativeUtils.loadLibraryFromJar(lib.toString());
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new UnsatisfiedLinkError(e.getMessage());
 		}
 	}
 
