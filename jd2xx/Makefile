@@ -106,6 +106,9 @@ jd2xx.jar: $(JOBJ)
 doc:
 	$(JAVADOC) -d $@ jd2xx
 
+maven-install: jd2xx.jar pom.xml
+	mvn install:install-file -Dfile=jd2xx.jar -DpomFile=pom.xml
+
 clean:
 	$(RM) jd2xx.jar $(SHARED_LIB)
 	$(RM) jd2xx/*.class cz/adamh/utils/*.class

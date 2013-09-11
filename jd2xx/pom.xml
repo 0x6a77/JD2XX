@@ -6,6 +6,8 @@
 	Install with:
 	JAVA_HOME=... make
 	mvn install:install-file -Dfile=jd2xx.jar -DpomFile=pom.xml
+	OR
+	JAVA_HOME=... make maven-install
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
