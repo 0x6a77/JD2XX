@@ -3,4 +3,4 @@
 /*.dll
 *.o
 
-src/jd2xx_JD2XX_*.h
+src/jd2xx_JD2XX*.h
