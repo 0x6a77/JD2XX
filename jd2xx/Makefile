@@ -13,8 +13,8 @@ PLATFORM=$(shell uname -ms)
 # Configuration:
 # may be overwritten by environment/commandline variables
 
-CC = gcc
-OBJDUMP = objdump
+CC ?= gcc
+OBJDUMP ?= objdump
 
 JFLAGS ?= -O
 CFLAGS ?= -O2 -g
@@ -53,21 +53,28 @@ else ifneq ($(findstring MINGW,$(PLATFORM)),)
 		FTDI = ../ftdi
 		OS = win32
 		ARCH = i386
-		SHARED_LIB = JD2XX.dll
+		SHARED_LIB = jd2xx.dll
 	else ifeq ($(word 2,$(PLATFORM)),x86_64)
 		JDK ?= c:/JDK
 		JDK_HEADERS = $(JDK)/include/win32
 		FTDI = ../ftdi
 		OS = win32
 		ARCH = amd64
-		SHARED_LIB = JD2XX.dll
+		SHARED_LIB = jd2xx.dll
 	endif
 endif
 
 CPPFLAGS += -I$(JDK)/include -I$(JDK_HEADERS) -I$(FTDI) -I$(FTDI)/$(OS) -I./src \
 	    -D_JNI_IMPLEMENTATION_
+
+#
+# NOTE: We link against the dynamic version of ftd2xx on Windows since its static
+# version is compiled with MSVC.
+# This is OK since the FTDI driver ships with the DLL.
+# Also, generating a separate MinGW import library is unnecessary!
+#
 LDFLAGS += -shared \
-	   -L$(FTDI)/$(OS)/build/$(ARCH)/ -L$(FTDI)/$(OS)/Static/$(ARCH)/ -lftd2xx
+	   -L$(FTDI)/$(OS)/build/$(ARCH)/ -L$(FTDI)/$(OS)/$(ARCH)/ -lftd2xx
 
 JAVAH = $(JDK)/bin/javah -jni
 JAVAC = $(JDK)/bin/javac
@@ -94,7 +101,7 @@ src/JD2XX.o : src/jd2xx_JD2XX.h src/jd2xx_JD2XX_DeviceInfo.h \
 	      src/jd2xx_JD2XX_ProgramData.h
 
 $(SHARED_LIB): src/JD2XX.o
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.class: %.java
 	$(JAVAC) $(JFLAGS) $<

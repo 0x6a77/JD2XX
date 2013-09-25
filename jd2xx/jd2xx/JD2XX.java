@@ -748,7 +748,7 @@ public class JD2XX implements Runnable {
 			throw new UnsatisfiedLinkError("Loading JD2XX JNI: Unknown runtime data model ("+dataModel+")");
 
 		if (osName.contains("win"))
-			lib.append("JD2XX.dll");
+			lib.append("jd2xx.dll");
 		else if (osName.contains("linux"))
 			lib.append("libjd2xx.so");
 		else if (osName.contains("mac"))
