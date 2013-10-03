@@ -122,7 +122,7 @@ typedef struct timeval FILETIME;
 #define PURGE_RXCLEAR       0x0008  // Kill the typeahead buffer if there.
 
 #ifndef INVALID_HANDLE_VALUE
-#define INVALID_HANDLE_VALUE 0xFFFFFFFF
+#define INVALID_HANDLE_VALUE 0xFFFFFFFFFFFFFFFF
 #endif
 
 #endif

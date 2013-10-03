@@ -9,6 +9,9 @@ JFLAGS = -O -cp "../jd2xx.jar"
 
 .PRECIOUS: %.class
 
+all:
+	$(JAVAC) $(JFLAGS) *.java
+
 %.class: %.java
 	$(JAVAC) $(JFLAGS) $^
 

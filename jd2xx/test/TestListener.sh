@@ -1,2 +1,2 @@
 #!/bin/bash
-java -Djava.library.path=".." -cp "../jd2xx.jar;." TestListener
+java -Xcheck:jni -Djava.library.path=".." -cp "../jd2xx.jar:." TestListener

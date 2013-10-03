@@ -1,1 +1,4 @@
 /bin
+*.class
+*.log
+/jd2xx/jd2xx.jar
