@@ -9,15 +9,10 @@ all: libftd2xx.a
 	$(CC) $(CFLAGS) $^ -c -o $@
 
 %.def: $(TARGET)/$(ARCH)/%.dll $(TARGET)/%.h
-#	$(PEXPORTS) -h $*.h $< > $@
-	$(PEXPORTS) $< > $@
+	$(GENDEF) - $< > $@
 
 lib%.a: $(TARGET)/$(ARCH)/%.dll %.def
 	$(DLLTOOL) -A --dllname $*.dll --def $*.def --output-lib $@
-
-%.def: $(TARGET)/$(ARCH)/%.dll $(TARGET)/%.h
-#	$(PEXPORTS) -h $*.h $< > $@
-	$(PEXPORTS) $< > $@
 
 lib%.a: $(TARGET)/$(ARCH)/%.dll %.def
 	$(DLLTOOL) -A --dllname $*.dll --def $*.def --output-lib $@
