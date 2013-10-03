@@ -1,7 +1,7 @@
 JD2XX
 =====
 
-A JD2XX fork that supports OS X (x86_64) and Linux (x86, x86_64, arm9hf, arm9sf)
+A JD2XX fork that supports OS X (x86_64) and Linux (x86, x86_64, arm7hf, arm7sf)
 
 JD2XX allows Java programs to control any FTDI serial UART bridge IC that has D2XX support.
 
