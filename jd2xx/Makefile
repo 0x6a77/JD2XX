@@ -20,6 +20,7 @@ JFLAGS ?= -O
 CFLAGS ?= -O2 -g
 LDFLAGS ?=
 
+# OS X
 ifeq ($(PLATFORM),Darwin x86_64)
 	JDK ?= /Library/Java/JavaVirtualMachines/jdk1.7.0_21.jdk/Contents/Home/
 	JDK_HEADERS = $(JDK)/include/darwin
@@ -28,6 +29,7 @@ ifeq ($(PLATFORM),Darwin x86_64)
 	ARCH = static64
 	LDFLAGS += -wl -framework CoreFoundation -framework IOKit -lobjc
 	SHARED_LIB = libjd2xx.jnilib
+#Linux x64
 else ifeq ($(PLATFORM),Linux i686)
 	JDK ?= /usr/lib/jvm/java-7-oracle/
 	JDK_HEADERS = $(JDK)/include/linux
@@ -37,6 +39,7 @@ else ifeq ($(PLATFORM),Linux i686)
 	OBJDUMP = objdump
 	LDFLAGS += -lrt
 	SHARED_LIB = libjd2xx.so
+#Linux x86
 else ifeq ($(PLATFORM),Linux x86_64)
 	JDK ?= /usr/lib/jvm/java-7-oracle/
 	JDK_HEADERS = $(JDK)/include/linux
@@ -46,6 +49,22 @@ else ifeq ($(PLATFORM),Linux x86_64)
 	CFLAGS += -fPIC
 	LDFLAGS += -lrt
 	SHARED_LIB = libjd2xx.so
+#ARM7
+else ifeq ($(PLATFORM),Linux armv7l)
+        JDK ?= /usr/lib/jvm/java-7-oracle/
+        JDK_HEADERS = $(JDK)/include/linux
+        FTDI = ../ftdi
+        OS = linux_arm
+        CFLAGS += -fPIC
+	HARDFLOAT=`readelf -a /usr/bin/readelf | grep armhf` 
+	ifeq ($(strip, $(HARDFLOAT)),)
+		ARCH="arm926-hf"
+	else 
+		ARCH="arm926"
+	endif 
+        LDFLAGS += -lrt
+        SHARED_LIB = libjd2xx.so
+#Windows (via mingw)
 else ifneq ($(findstring MINGW,$(PLATFORM)),)
 	ifeq ($(word 2,$(PLATFORM)),i686)
 		JDK ?= c:/JDK
